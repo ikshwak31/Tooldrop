@@ -12,6 +12,11 @@ const categoryInfo = {
   Marketing:    { emoji: '📣', desc: 'AI tools for ads, social, and campaigns.' },
   Research:     { emoji: '🔬', desc: 'Find information faster with AI search.' },
   Chatbots:     { emoji: '🤖', desc: 'Conversational AI and virtual assistants.' },
+  Design:       { emoji: '🎯', desc: 'AI-enhanced design and creative tools.' },
+  Data:         { emoji: '📊', desc: 'AI analytics, visualization, and insights.' },
+  Education:    { emoji: '🎓', desc: 'AI tutoring and personalized learning.' },
+  '3D':         { emoji: '🧊', desc: 'Generate 3D models, scenes, and textures.' },
+  Automation:   { emoji: '⚡', desc: 'Automate workflows and connect apps with AI.' },
 }
 
 export default function CategoriesPage({ onSelectCategory }) {

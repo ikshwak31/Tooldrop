@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-export default function Hero({ onSearch, searchValue }) {
+export default function Hero({ onSearch, searchValue, searching = false }) {
   const [query, setQuery] = useState(searchValue || '')
 
   // Sync local state when parent clears search
@@ -32,11 +32,11 @@ export default function Hero({ onSearch, searchValue }) {
         Discover the Best AI Tools
       </h1>
 
-      <p style={{ color: '#5a6580', marginBottom: '40px', fontSize: '1.05rem', maxWidth: '460px', margin: '0 auto 40px', lineHeight: 1.7 }}>
-        Find powerful AI tools instantly — curated, ranked, and categorised across every use case.
+      <p style={{ color: '#5a6580', marginBottom: '40px', fontSize: '1.05rem', maxWidth: '520px', margin: '0 auto 40px', lineHeight: 1.7 }}>
+        Describe what you need in plain language and find the right AI tool for the job.
       </p>
 
-      <div style={{
+      <form onSubmit={e => { e.preventDefault(); onSearch(query) }} style={{
         display: 'flex', maxWidth: '520px', margin: '0 auto',
         background: '#0f1420',
         border: '1px solid rgba(255,255,255,0.1)',
@@ -46,7 +46,8 @@ export default function Hero({ onSearch, searchValue }) {
       }}>
         <input
           type="text"
-          placeholder="Search AI tools, categories, use cases..."
+          placeholder="Try “compress an image” or “make a PDF”"
+          aria-label="Describe what you need help with"
           value={query}
           onChange={e => handleChange(e.target.value)}
           onKeyDown={e => { if (e.key === 'Escape') handleClear() }}
@@ -58,6 +59,7 @@ export default function Hero({ onSearch, searchValue }) {
         />
         {query && (
           <button
+            type="button"
             onClick={handleClear}
             title="Clear search"
             style={{
@@ -70,21 +72,25 @@ export default function Hero({ onSearch, searchValue }) {
           </button>
         )}
         <button
-          onClick={() => onSearch(query)}
+          type="submit"
+          disabled={searching || !query.trim()}
           style={{
             padding: '16px 28px',
             background: '#00f0a0', border: 'none',
             cursor: 'pointer', fontWeight: 700,
             fontFamily: "'Outfit', sans-serif", fontSize: '0.9rem', color: '#000',
             letterSpacing: '0.3px', whiteSpace: 'nowrap',
-            transition: 'opacity 0.2s',
+            transition: 'opacity 0.2s', opacity: !query.trim() ? 0.6 : 1,
           }}
           onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
           onMouseLeave={e => e.currentTarget.style.opacity = '1'}
         >
-          Search →
+          {searching ? 'Finding…' : 'Find tools →'}
         </button>
-      </div>
+      </form>
+      <p aria-live="polite" style={{ color: '#5a6580', marginTop: '12px', fontSize: '0.78rem' }}>
+        {searching ? 'Understanding your request…' : 'AI-powered search understands tasks, not just tool names.'}
+      </p>
     </section>
   )
 }

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
@@ -33,6 +33,46 @@ function Orbs() {
   )
 }
 
+const SEARCH_STOP_WORDS = new Set([
+  'i', 'me', 'my', 'we', 'our', 'you', 'your', 'the', 'a', 'an', 'and', 'or', 'of', 'for', 'to', 'in', 'on', 'with',
+  'is', 'are', 'be', 'it', 'this', 'that', 'these', 'those', 'please', 'help', 'need', 'want', 'looking', 'find', 'get',
+  'some', 'something', 'way', 'tool', 'tools', 'app', 'apps', 'ai', 'online', 'can', 'could', 'would', 'do', 'does',
+  'how', 'what', 'which', 'who', 'where', 'when', 'will', 'should', 'something', 'anything', 'just', 'know', 'best', 'one',
+])
+
+const SEARCH_SYNONYMS = [
+  ['compress', 'compressor', 'compressing', 'compression', 'shrink', 'shrinking', 'reduce', 'smaller', 'downsize', 'optimize', 'optimise', 'minify'],
+  ['image', 'images', 'photo', 'photos', 'picture', 'pictures', 'graphic', 'graphics', 'jpg', 'jpeg', 'png', 'webp'],
+  ['pdf', 'pdfs', 'document', 'documents', 'doc', 'docs', 'paperwork'],
+  ['create', 'creates', 'creating', 'creation', 'make', 'makes', 'build', 'building', 'generate', 'generating', 'design', 'produce', 'turn'],
+  ['remove', 'removing', 'erase', 'cutout', 'cutouts', 'transparent', 'background', 'backdrop'],
+  ['summarize', 'summarise', 'summary', 'summaries', 'shorten', 'brief', 'overview', 'recap'],
+  ['translate', 'translation', 'translated', 'translating', 'language', 'localize', 'localise'],
+  ['convert', 'converter', 'conversion', 'transform', 'export'],
+  ['transcribe', 'transcription', 'transcript', 'captions', 'subtitles', 'speech', 'spoken'],
+  ['meeting', 'meetings', 'call', 'calls', 'conversation', 'conversations'],
+  ['presentation', 'presentations', 'slides', 'slide', 'deck', 'powerpoint', 'ppt'],
+  ['diagram', 'diagrams', 'flowchart', 'flowcharts', 'infographic', 'infographics', 'mindmap', 'visualize', 'visualise'],
+  ['write', 'writing', 'rewrite', 'rewriting', 'paraphrase', 'paraphrasing', 'copy', 'draft'],
+  ['upscale', 'upscaling', 'enhance', 'enhancer', 'sharpen', 'resolution', 'blurry'],
+]
+
+function localSearchScore(tool, query) {
+  const normalize = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+  const indexedWords = new Set(normalize([
+    tool.name, tool.desc, tool.category, ...(tool.tags || []), ...(tool.searchTerms || []),
+  ].join(' ')).match(/[a-z0-9]+/g) || [])
+  const queryWords = (normalize(query).match(/[a-z0-9]+/g) || []).filter(word => !SEARCH_STOP_WORDS.has(word))
+  if (!queryWords.length) return 0
+
+  const matchedWords = queryWords.filter(word => {
+    const synonymSet = SEARCH_SYNONYMS.find(group => group.includes(word))
+    return synonymSet ? synonymSet.some(synonym => indexedWords.has(synonym)) : indexedWords.has(word)
+  }).length
+  const score = matchedWords / queryWords.length
+  return score >= 0.5 ? score : 0
+}
+
 function HomePage() {
   const navigate = useNavigate()
   // BUG #8 FIX: read category from URL search param so CategoriesPage can pre-select it
@@ -41,6 +81,42 @@ function HomePage() {
 
   const [search, setSearch]     = useState('')
   const [category, setCategory] = useState(urlCategory)
+  const [aiSearch, setAiSearch] = useState(null)
+  const [searchingAI, setSearchingAI] = useState(false)
+
+  useEffect(() => {
+    const query = search.trim().toLowerCase()
+    if (query.length < 2) {
+      setAiSearch(null)
+      setSearchingAI(false)
+      return undefined
+    }
+
+    const controller = new AbortController()
+    const timer = window.setTimeout(async () => {
+      setSearchingAI(true)
+      try {
+        const response = await fetch('/api/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query }),
+          signal: controller.signal,
+        })
+        if (!response.ok) throw new Error('AI search is unavailable')
+        const result = await response.json()
+        setAiSearch({ query, results: result.results || [] })
+      } catch (error) {
+        if (error.name !== 'AbortError') setAiSearch(null)
+      } finally {
+        if (!controller.signal.aborted) setSearchingAI(false)
+      }
+    }, 350)
+
+    return () => {
+      window.clearTimeout(timer)
+      controller.abort()
+    }
+  }, [search])
 
   const handleCategorySelect = (cat) => {
     setCategory(cat)
@@ -53,18 +129,22 @@ function HomePage() {
   }
 
   const filtered = useMemo(() => {
-    return tools.filter(tool => {
-      // BUG #1 FIX: data uses `desc` not `description` — guard with || '' to be safe
-      const q = search.toLowerCase()
-      const matchSearch =
-        !search ||
-        tool.name.toLowerCase().includes(q) ||
-        (tool.desc || '').toLowerCase().includes(q) ||
-        (tool.tags || []).some(t => t.toLowerCase().includes(q))
+    const q = search.trim().toLowerCase()
+    const rankedResults = aiSearch?.query === q && aiSearch.results.length ? aiSearch.results : null
+    const scores = rankedResults
+      ? new Map(rankedResults.map(result => [result.name, result.score]))
+      : null
+    const localScores = new Map(tools.map(tool => [tool.name, localSearchScore(tool, q)]))
+    const matches = tools.filter(tool => {
+      const matchSearch = !q || (scores
+        ? scores.has(tool.name)
+        : localScores.get(tool.name) > 0)
       const matchCat = category === 'All' || tool.category === category
       return matchSearch && matchCat
     })
-  }, [search, category])
+
+    return matches.sort((a, b) => (scores?.get(b.name) ?? localScores.get(b.name)) - (scores?.get(a.name) ?? localScores.get(a.name)))
+  }, [search, category, aiSearch])
 
   // BUG #3 FIX: `featured` field doesn't exist in data — use `isNew: true` instead
   const featured = filtered.filter(t => t.isNew === true)
@@ -72,7 +152,7 @@ function HomePage() {
 
   return (
     <>
-      <Hero onSearch={setSearch} searchValue={search} />
+      <Hero onSearch={setSearch} searchValue={search} searching={searchingAI} />
 
       <div style={{ position: 'relative', zIndex: 1, maxWidth: '1200px', margin: '0 auto', padding: '0 24px 80px' }}>
 

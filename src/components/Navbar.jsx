@@ -1,80 +1,40 @@
 import { useState } from 'react'
 
 export default function Navbar({ currentPage, onNavigate }) {
-  const [hovered,   setHovered]   = useState(null)
-  const [menuOpen,  setMenuOpen]  = useState(false)
-
+  const [menuOpen, setMenuOpen] = useState(false)
   const links = [
-    { label: 'Discover',    page: 'home'       },
-    { label: 'Categories',  page: 'categories' },
-    // BUG #5 FIX: was 'newdrops' — route is registered as 'new-drops'
-    { label: 'New Drops',   page: 'new-drops'  },
-    { label: 'Blog',        page: 'blog'       },
+    { label: 'Discover', page: 'home' },
+    { label: 'Categories', page: 'categories' },
+    { label: 'New drops', page: 'new-drops' },
+    { label: 'Journal', page: 'blog' },
   ]
 
-  const handleNav = (page) => {
+  const navigate = page => {
     onNavigate(page)
     setMenuOpen(false)
   }
 
   return (
-    <nav style={{
-      position: 'sticky', top: 0, zIndex: 100,
-      background: 'rgba(8,11,18,0.88)', backdropFilter: 'blur(20px)',
-      borderBottom: '1px solid rgba(255,255,255,0.07)',
-    }}>
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 40px', height: '64px', maxWidth: '1400px', margin: '0 auto',
-      }}>
-        {/* Logo */}
-        <span
-          onClick={() => handleNav('home')}
-          style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: '1.5rem', letterSpacing: '-0.5px', color: '#e8edf5', cursor: 'pointer' }}
-        >
-          Tool<span style={{ color: '#00f0a0' }}>Drop</span>
-        </span>
+    <header className="site-header">
+      <nav className="nav-inner" aria-label="Main navigation">
+        <button className="brand" onClick={() => navigate('home')} aria-label="ToolDrop home">
+          <span className="brand-mark" aria-hidden="true">T</span>
+          <span>tool<span>drop</span><small>THE AI TOOL INDEX</small></span>
+        </button>
 
-        {/* Desktop links */}
-        <ul style={{ display: 'flex', gap: '32px', listStyle: 'none', alignItems: 'center', margin: 0, padding: 0 }}>
-          {links.map(({ label, page }) => {
-            const isActive = currentPage === page
-            return (
-              <li key={page}>
-                <span
-                  onClick={() => handleNav(page)}
-                  onMouseEnter={() => setHovered(page)}
-                  onMouseLeave={() => setHovered(null)}
-                  style={{
-                    color: isActive || hovered === page ? '#e8edf5' : '#5a6580',
-                    fontSize: '0.9rem', fontWeight: 500,
-                    transition: 'color 0.2s', cursor: 'pointer',
-                    borderBottom: isActive ? '1px solid #00f0a0' : 'none',
-                    paddingBottom: '2px',
-                  }}
-                >
-                  {label}
-                </span>
-              </li>
-            )
-          })}
-          <li>
-            <span
-              onClick={() => handleNav('submit')}
-              style={{
-                background: '#00f0a0', color: '#000',
-                padding: '8px 20px', borderRadius: '6px',
-                fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer',
-                transition: 'opacity 0.2s',
-              }}
-              onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
-              onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-            >
-              Submit Tool
-            </span>
-          </li>
-        </ul>
-      </div>
-    </nav>
+        <button className="nav-menu-toggle" aria-label="Toggle navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>
+          <span /><span />
+        </button>
+
+        <div className={`nav-links${menuOpen ? ' is-open' : ''}`}>
+          {links.map(({ label, page }) => (
+            <button key={page} className={`nav-link${currentPage === page ? ' is-active' : ''}`} onClick={() => navigate(page)}>
+              {label}
+            </button>
+          ))}
+          <button className="nav-submit" onClick={() => navigate('submit')}>Suggest a tool <span aria-hidden="true">↗</span></button>
+        </div>
+      </nav>
+    </header>
   )
 }

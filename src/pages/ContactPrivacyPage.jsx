@@ -1,9 +1,9 @@
 import { useState } from 'react'
 
 const inputBase = {
-  width: '100%', background: '#0f1420',
-  border: '1px solid rgba(255,255,255,0.07)',
-  color: '#e8edf5', fontFamily: "'Outfit', sans-serif",
+  width: '100%', background: '#fffdf9',
+  border: '1px solid rgba(32,38,56,0.1)',
+  color: '#202638', fontFamily: "'DM Sans', sans-serif",
   padding: '12px 16px', borderRadius: '10px',
   outline: 'none', fontSize: '0.95rem', marginBottom: '16px',
   transition: 'border-color 0.2s',
@@ -37,11 +37,11 @@ export function ContactPage() {
 
   const Field = ({ label, error, children }) => (
     <div style={{ marginBottom: '4px' }}>
-      <label style={{ display: 'block', color: '#e8edf5', fontSize: '0.85rem', marginBottom: '6px', fontWeight: 500 }}>
+      <label style={{ display: 'block', color: '#202638', fontSize: '0.85rem', marginBottom: '6px', fontWeight: 500 }}>
         {label}
       </label>
       {children}
-      {error && <p style={{ color: '#ff6b35', fontSize: '0.78rem', marginTop: '-10px', marginBottom: '12px', fontFamily: "'DM Mono', monospace" }}>{error}</p>}
+      {error && <p style={{ color: '#b45d43', fontSize: '0.78rem', marginTop: '-10px', marginBottom: '12px', fontFamily: "'IBM Plex Mono', monospace" }}>{error}</p>}
     </div>
   )
 
@@ -49,65 +49,65 @@ export function ContactPage() {
     <div style={{ position: 'relative', zIndex: 1, maxWidth: '600px', margin: '0 auto', padding: '60px 24px 80px' }}>
       <div style={{ marginBottom: '40px' }}>
         <div style={{
-          display: 'inline-block', background: 'rgba(0,240,160,0.08)',
-          border: '1px solid rgba(0,240,160,0.2)', color: '#00f0a0',
-          fontFamily: "'DM Mono', monospace", fontSize: '0.75rem',
+          display: 'inline-block', background: 'rgba(49,86,217,0.08)',
+          border: '1px solid rgba(49,86,217,0.2)', color: '#3156d9',
+          fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.75rem',
           padding: '6px 14px', borderRadius: '999px', marginBottom: '20px',
         }}>// CONTACT</div>
-        <h1 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: '3rem', letterSpacing: '-1.5px', color: '#e8edf5', marginBottom: '16px' }}>
+        <h1 style={{ fontFamily: "'Fraunces', Georgia, serif", fontWeight: 800, fontSize: '3rem', letterSpacing: '-1.5px', color: '#202638', marginBottom: '16px' }}>
           Get in Touch
         </h1>
-        <p style={{ color: '#5a6580', lineHeight: 1.7 }}>Have a question, suggestion, or want to advertise? We&apos;d love to hear from you.</p>
+        <p style={{ color: '#727687', lineHeight: 1.7 }}>Have a question, suggestion, or want to advertise? We&apos;d love to hear from you.</p>
       </div>
 
       {sent ? (
-        <div style={{ textAlign: 'center', padding: '48px', background: '#0f1420', borderRadius: '16px', border: '1px solid rgba(0,240,160,0.2)' }}>
+        <div style={{ textAlign: 'center', padding: '48px', background: '#fffdf9', borderRadius: '16px', border: '1px solid rgba(49,86,217,0.2)' }}>
           <div style={{ fontSize: '3rem', marginBottom: '16px' }}>✅</div>
-          <h3 style={{ fontFamily: "'Syne', sans-serif", color: '#e8edf5', fontWeight: 700 }}>Message Sent!</h3>
-          <p style={{ color: '#5a6580', marginTop: '8px' }}>We&apos;ll get back to you within 24–48 hours.</p>
+          <h3 style={{ fontFamily: "'Fraunces', Georgia, serif", color: '#202638', fontWeight: 700 }}>Message Sent!</h3>
+          <p style={{ color: '#727687', marginTop: '8px' }}>We&apos;ll get back to you within 24–48 hours.</p>
         </div>
       ) : (
-        <div style={{ background: '#0f1420', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '36px' }}>
+        <div style={{ background: '#fffdf9', border: '1px solid rgba(32,38,56,0.1)', borderRadius: '20px', padding: '36px' }}>
 
           <Field label="Your Name" error={errors.name}>
             <input
-              style={{ ...inputBase, borderColor: errors.name ? 'rgba(255,107,53,0.5)' : 'rgba(255,255,255,0.07)' }}
+              style={{ ...inputBase, borderColor: errors.name ? 'rgba(180,93,67,0.5)' : 'rgba(32,38,56,0.1)' }}
               placeholder="John Doe"
               value={form.name}
               onChange={e => { setForm(f => ({ ...f, name: e.target.value })); setErrors(er => ({ ...er, name: '' })) }}
-              onFocus={e  => e.target.style.borderColor = 'rgba(0,240,160,0.4)'}
-              onBlur={e   => e.target.style.borderColor = errors.name ? 'rgba(255,107,53,0.5)' : 'rgba(255,255,255,0.07)'}
+              onFocus={e  => e.target.style.borderColor = 'rgba(49,86,217,0.4)'}
+              onBlur={e   => e.target.style.borderColor = errors.name ? 'rgba(180,93,67,0.5)' : 'rgba(32,38,56,0.1)'}
             />
           </Field>
 
           <Field label="Email" error={errors.email}>
             <input
-              style={{ ...inputBase, borderColor: errors.email ? 'rgba(255,107,53,0.5)' : 'rgba(255,255,255,0.07)' }}
+              style={{ ...inputBase, borderColor: errors.email ? 'rgba(180,93,67,0.5)' : 'rgba(32,38,56,0.1)' }}
               placeholder="you@email.com"
               type="email"
               value={form.email}
               onChange={e => { setForm(f => ({ ...f, email: e.target.value })); setErrors(er => ({ ...er, email: '' })) }}
-              onFocus={e  => e.target.style.borderColor = 'rgba(0,240,160,0.4)'}
-              onBlur={e   => e.target.style.borderColor = errors.email ? 'rgba(255,107,53,0.5)' : 'rgba(255,255,255,0.07)'}
+              onFocus={e  => e.target.style.borderColor = 'rgba(49,86,217,0.4)'}
+              onBlur={e   => e.target.style.borderColor = errors.email ? 'rgba(180,93,67,0.5)' : 'rgba(32,38,56,0.1)'}
             />
           </Field>
 
           <Field label="Message" error={errors.message}>
             <textarea
-              style={{ ...inputBase, minHeight: '120px', resize: 'vertical', borderColor: errors.message ? 'rgba(255,107,53,0.5)' : 'rgba(255,255,255,0.07)' }}
+              style={{ ...inputBase, minHeight: '120px', resize: 'vertical', borderColor: errors.message ? 'rgba(180,93,67,0.5)' : 'rgba(32,38,56,0.1)' }}
               placeholder="Your message..."
               value={form.message}
               onChange={e => { setForm(f => ({ ...f, message: e.target.value })); setErrors(er => ({ ...er, message: '' })) }}
-              onFocus={e  => e.target.style.borderColor = 'rgba(0,240,160,0.4)'}
-              onBlur={e   => e.target.style.borderColor = errors.message ? 'rgba(255,107,53,0.5)' : 'rgba(255,255,255,0.07)'}
+              onFocus={e  => e.target.style.borderColor = 'rgba(49,86,217,0.4)'}
+              onBlur={e   => e.target.style.borderColor = errors.message ? 'rgba(180,93,67,0.5)' : 'rgba(32,38,56,0.1)'}
             />
           </Field>
 
           <button
             onClick={handleSubmit}
             style={{
-              width: '100%', background: '#00f0a0', color: '#000',
-              fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: '1rem',
+              width: '100%', background: '#3156d9', color: '#000',
+              fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: '1rem',
               padding: '14px', border: 'none', borderRadius: '10px', cursor: 'pointer',
               transition: 'opacity 0.2s',
             }}
@@ -136,21 +136,21 @@ export function PrivacyPage() {
     <div style={{ position: 'relative', zIndex: 1, maxWidth: '700px', margin: '0 auto', padding: '60px 24px 80px' }}>
       <div style={{ marginBottom: '48px' }}>
         <div style={{
-          display: 'inline-block', background: 'rgba(0,240,160,0.08)',
-          border: '1px solid rgba(0,240,160,0.2)', color: '#00f0a0',
-          fontFamily: "'DM Mono', monospace", fontSize: '0.75rem',
+          display: 'inline-block', background: 'rgba(49,86,217,0.08)',
+          border: '1px solid rgba(49,86,217,0.2)', color: '#3156d9',
+          fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.75rem',
           padding: '6px 14px', borderRadius: '999px', marginBottom: '20px',
         }}>// PRIVACY POLICY</div>
-        <h1 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: '3rem', letterSpacing: '-1.5px', color: '#e8edf5', marginBottom: '8px' }}>
+        <h1 style={{ fontFamily: "'Fraunces', Georgia, serif", fontWeight: 800, fontSize: '3rem', letterSpacing: '-1.5px', color: '#202638', marginBottom: '8px' }}>
           Privacy Policy
         </h1>
-        <p style={{ color: '#5a6580', fontFamily: "'DM Mono', monospace", fontSize: '0.8rem' }}>Last updated: March 2026</p>
+        <p style={{ color: '#727687', fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.8rem' }}>Last updated: March 2026</p>
       </div>
 
       {sections.map((s, i) => (
-        <div key={i} style={{ marginBottom: '32px', paddingBottom: '32px', borderBottom: i < sections.length - 1 ? '1px solid rgba(255,255,255,0.07)' : 'none' }}>
-          <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: '1.2rem', color: '#e8edf5', marginBottom: '12px' }}>{s.title}</h2>
-          <p style={{ color: '#5a6580', lineHeight: 1.8 }}>{s.text}</p>
+        <div key={i} style={{ marginBottom: '32px', paddingBottom: '32px', borderBottom: i < sections.length - 1 ? '1px solid rgba(32,38,56,0.1)' : 'none' }}>
+          <h2 style={{ fontFamily: "'Fraunces', Georgia, serif", fontWeight: 700, fontSize: '1.2rem', color: '#202638', marginBottom: '12px' }}>{s.title}</h2>
+          <p style={{ color: '#727687', lineHeight: 1.8 }}>{s.text}</p>
         </div>
       ))}
     </div>

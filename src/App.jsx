@@ -4,7 +4,6 @@ import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import CategoryFilter from './components/CategoryFilter'
 import ToolCard from './components/ToolCard'
-import Newsletter from './components/Newsletter'
 import Footer from './components/Footer'
 import BlogPage from './pages/BlogPage'
 import CategoriesPage from './pages/CategoriesPage'
@@ -13,25 +12,6 @@ import SubmitPage from './pages/SubmitPage'
 import AboutPage from './pages/AboutPage'
 import { ContactPage, PrivacyPage } from './pages/ContactPrivacyPage'
 import { tools, CATEGORIES } from './data/tools'
-
-function Orbs() {
-  return (
-    <>
-      {[
-        { w: 600, h: 600, bg: '#00f0a0', top: '-200px', left: '-200px' },
-        { w: 500, h: 500, bg: '#0af',    bottom: '-100px', right: '-150px' },
-        { w: 300, h: 300, bg: '#ff6b35', top: '40%', left: '55%' },
-      ].map((o, i) => (
-        <div key={i} style={{
-          position: 'fixed', borderRadius: '50%', filter: 'blur(120px)',
-          pointerEvents: 'none', zIndex: 0, opacity: 0.15,
-          width: o.w, height: o.h, background: o.bg,
-          top: o.top, left: o.left, bottom: o.bottom, right: o.right,
-        }} />
-      ))}
-    </>
-  )
-}
 
 const SEARCH_STOP_WORDS = new Set([
   'i', 'me', 'my', 'we', 'our', 'you', 'your', 'the', 'a', 'an', 'and', 'or', 'of', 'for', 'to', 'in', 'on', 'with',
@@ -146,106 +126,73 @@ function HomePage() {
     return matches.sort((a, b) => (scores?.get(b.name) ?? localScores.get(b.name)) - (scores?.get(a.name) ?? localScores.get(a.name)))
   }, [search, category, aiSearch])
 
-  // BUG #3 FIX: `featured` field doesn't exist in data — use `isNew: true` instead
-  const featured = filtered.filter(t => t.isNew === true)
-  const rest      = filtered.filter(t => t.isNew !== true)
+  const showNew = !search && category === 'All'
+  const featured = showNew ? filtered.filter(t => t.isNew === true).slice(-6).reverse() : []
+  const featuredNames = new Set(featured.map(tool => tool.name))
+  const rest = filtered.filter(tool => !featuredNames.has(tool.name))
 
   return (
     <>
-      <Hero onSearch={setSearch} searchValue={search} searching={searchingAI} />
+      <Hero onSearch={setSearch} searchValue={search} searching={searchingAI} toolCount={tools.length} />
 
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: '1200px', margin: '0 auto', padding: '0 24px 80px' }}>
+      <div className="home-directory page-width">
+        <section className="home-section" aria-labelledby="category-heading">
+          <div className="section-heading">
+            <div>
+              <h2 id="category-heading">Browse by category</h2>
+              <p>Start with the kind of work you have in mind.</p>
+            </div>
+            <span className="category-count">{CATEGORIES.length - 1} categories</span>
+          </div>
+          <CategoryFilter selected={category} onSelect={handleCategorySelect} />
+        </section>
 
-        {/* BUG #10 FIX: use real count from CATEGORIES, not hardcoded "48" */}
-        <div style={{ marginBottom: '24px' }}>
-          <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: '1.4rem', letterSpacing: '-0.5px', color: '#e8edf5' }}>
-            Browse by Category{' '}
-            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.75rem', color: '#00f0a0', fontWeight: 400, marginLeft: '10px' }}>
-              // {CATEGORIES.length - 1} CATEGORIES
-            </span>
-          </h2>
-        </div>
-
-        <CategoryFilter selected={category} onSelect={handleCategorySelect} />
-
-        {/* Search feedback strip */}
         {search && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '28px' }}>
-            <span style={{ color: '#5a6580', fontSize: '0.9rem' }}>
-              <span style={{ color: '#00f0a0', fontWeight: 600 }}>{filtered.length}</span> result{filtered.length !== 1 ? 's' : ''} for &ldquo;{search}&rdquo;
-            </span>
-            <button
-              onClick={() => setSearch('')}
-              style={{ background: 'none', border: '1px solid rgba(255,255,255,0.1)', color: '#5a6580', padding: '2px 12px', borderRadius: '999px', cursor: 'pointer', fontSize: '0.78rem' }}
-            >
-              ✕ Clear
-            </button>
+          <div className="search-results-meta" aria-live="polite">
+            <strong>{filtered.length} {filtered.length === 1 ? 'match' : 'matches'}</strong>
+            <span>for “{search}”</span>
+            <button onClick={() => setSearch('')}>Clear search</button>
           </div>
         )}
 
-        {/* BUG #3 FIX: this section now actually renders because `featured` uses isNew */}
         {featured.length > 0 && (
-          <>
-            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '20px' }}>
-              <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: '1.4rem', letterSpacing: '-0.5px', color: '#e8edf5' }}>
-                🔥 Trending Now{' '}
-                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.75rem', color: '#00f0a0', fontWeight: 400, marginLeft: '10px' }}>// FEATURED</span>
-              </h2>
-              <span
-                onClick={() => navigate('/new-drops')}
-                style={{ color: '#5a6580', fontSize: '0.85rem', cursor: 'pointer' }}
-              >
-                View all →
-              </span>
+          <section className="home-section" aria-labelledby="new-tools-heading">
+            <div className="section-heading">
+              <div><h2 id="new-tools-heading">Fresh on the list</h2><p>Recently added places to explore.</p></div>
+              <button className="section-link" onClick={() => navigate('/new-drops')}>See all new drops ↗</button>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px', marginBottom: '48px' }}>
-              {/* BUG #4 FIX: key uses tool.name (unique) not tool.id (undefined) */}
-              {featured.map((tool, i) => <ToolCard key={tool.name} tool={tool} delay={i * 0.05} />)}
+            <div className="tool-grid">
+              {featured.map((tool, index) => <ToolCard key={tool.name} tool={tool} delay={index * .035} />)}
             </div>
-          </>
+          </section>
         )}
 
         {rest.length > 0 && (
-          <>
-            <div style={{ marginBottom: '20px' }}>
-              <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: '1.4rem', letterSpacing: '-0.5px', color: '#e8edf5' }}>
-                All Tools{' '}
-                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.75rem', color: '#00f0a0', fontWeight: 400, marginLeft: '10px' }}>// {rest.length} RESULTS</span>
-              </h2>
+          <section className="home-section" aria-labelledby="directory-heading">
+            <div className="section-heading">
+              <div><h2 id="directory-heading">The directory</h2><p>{rest.length} tools, organized around the work they help with.</p></div>
+              {search && <span className="category-count">Best matches first</span>}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
-              {/* BUG #4 FIX: key uses tool.name */}
-              {rest.map((tool, i) => <ToolCard key={tool.name} tool={tool} delay={i * 0.05} />)}
+            <div className="tool-grid">
+              {rest.map((tool, index) => <ToolCard key={tool.name} tool={tool} delay={index * .012} />)}
             </div>
-          </>
+          </section>
         )}
 
         {filtered.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '80px 20px', color: '#5a6580' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🔍</div>
-            <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '1.3rem', fontWeight: 700, color: '#e8edf5', marginBottom: '8px' }}>No tools found</div>
-            <div style={{ marginBottom: '24px' }}>Try a different search term or category</div>
-            <button
-              onClick={() => { setSearch(''); handleCategorySelect('All') }}
-              style={{ background: '#00f0a0', color: '#000', border: 'none', padding: '10px 24px', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', fontSize: '0.9rem' }}
-            >
-              Reset filters
-            </button>
+          <div className="home-empty">
+            <div className="home-empty-mark" aria-hidden="true">⌕</div>
+            <h2>No matches just yet</h2>
+            <p>Try a broader phrase or browse the categories above.</p>
+            <button onClick={() => { setSearch(''); handleCategorySelect('All') }}>Show the full directory</button>
           </div>
         )}
       </div>
 
-      <div style={{ position: 'relative', zIndex: 1, background: 'linear-gradient(135deg, rgba(0,240,160,0.06), rgba(0,170,255,0.04))', borderTop: '1px solid rgba(255,255,255,0.07)', borderBottom: '1px solid rgba(255,255,255,0.07)', padding: '48px 24px', marginBottom: '80px', textAlign: 'center' }}>
-        <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: '1.8rem', marginBottom: '10px', color: '#e8edf5' }}>💰 Earn With ToolDrop</h2>
-        <p style={{ color: '#5a6580', marginBottom: '24px' }}>Every tool on this site has an affiliate program. When you refer users, you earn commissions.</p>
-        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.72rem', color: '#5a6580', display: 'inline-block', background: '#0f1420', padding: '6px 14px', borderRadius: '999px', border: '1px solid rgba(255,255,255,0.07)' }}>
-          // Some links on this site are affiliate links. We earn a commission at no extra cost to you.
-        </span>
-      </div>
-
-      <div style={{ position: 'relative', zIndex: 1, padding: '0 24px' }}>
-        <Newsletter />
-      </div>
+      <section className="submit-callout page-width">
+        <div><h2>Know a tool we should include?</h2><p>Help someone find their next useful tool.</p></div>
+        <button onClick={() => navigate('/submit')}>Suggest a tool <span aria-hidden="true">↗</span></button>
+      </section>
     </>
   )
 }
@@ -257,13 +204,12 @@ function AppLayout() {
   const currentPage = location.pathname.replace(/^\//, '') || 'home'
 
   return (
-    <div style={{ minHeight: '100vh' }}>
-      <Orbs />
+    <div className="site-shell">
       <Navbar
         currentPage={currentPage}
         onNavigate={(p) => navigate(p === 'home' ? '/' : `/${p}`)}
       />
-      <Routes>
+      <main className="site-main"><Routes>
         <Route path="/"           element={<HomePage />} />
         {/* BUG #8 FIX: pass category to navigate so CategoriesPage selection works */}
         <Route path="/categories" element={<CategoriesPage onSelectCategory={(cat) => navigate(`/?category=${cat}`)} />} />
@@ -275,7 +221,7 @@ function AppLayout() {
         <Route path="/privacy"    element={<PrivacyPage />} />
         {/* BUG #9 FIX: catch-all so unknown URLs don't show a blank content area */}
         <Route path="*"           element={<HomePage />} />
-      </Routes>
+      </Routes></main>
       <Footer onNavigate={(p) => navigate(p === 'home' ? '/' : `/${p}`)} />
     </div>
   )

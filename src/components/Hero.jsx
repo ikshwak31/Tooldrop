@@ -1,96 +1,62 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
-export default function Hero({ onSearch, searchValue, searching = false }) {
+const examples = ['Compress a product photo', 'Turn notes into slides', 'Understand a research paper']
+
+export default function Hero({ onSearch, searchValue, searching = false, toolCount = 124 }) {
   const [query, setQuery] = useState(searchValue || '')
 
-  // Sync local state when parent clears search
-  useEffect(() => {
-    setQuery(searchValue || '')
-  }, [searchValue])
+  useEffect(() => setQuery(searchValue || ''), [searchValue])
 
-  const handleChange = (val) => {
-    setQuery(val)
-    onSearch(val)  // live search — results update as user types
-  }
-
-  const handleClear = () => {
-    setQuery('')
-    onSearch('')
+  const updateQuery = value => {
+    setQuery(value)
+    onSearch(value)
   }
 
   return (
-    <section style={{ textAlign: 'center', padding: '100px 20px 80px', position: 'relative', zIndex: 1 }}>
-      <h1 style={{
-        fontFamily: "'Syne', sans-serif",
-        fontWeight: 800,
-        fontSize: 'clamp(2rem, 6vw, 3.8rem)',
-        lineHeight: 1.1,
-        letterSpacing: '-2px',
-        marginBottom: '20px',
-        color: '#e8edf5',
-      }}>
-        Discover the Best AI Tools
-      </h1>
+    <section className="hero page-width">
+      <div className="hero-copy">
+        <div className="eyebrow">A considered directory of AI tools</div>
+        <h1>Find the right tool<br />for <em>what you do.</em></h1>
+        <p className="hero-description">Skip the endless lists. Tell us what you’re working on and we’ll point you to a useful place to start.</p>
 
-      <p style={{ color: '#5a6580', marginBottom: '40px', fontSize: '1.05rem', maxWidth: '520px', margin: '0 auto 40px', lineHeight: 1.7 }}>
-        Describe what you need in plain language and find the right AI tool for the job.
-      </p>
-
-      <form onSubmit={e => { e.preventDefault(); onSearch(query) }} style={{
-        display: 'flex', maxWidth: '520px', margin: '0 auto',
-        background: '#0f1420',
-        border: '1px solid rgba(255,255,255,0.1)',
-        borderRadius: '12px', overflow: 'hidden',
-        boxShadow: query ? '0 0 0 2px rgba(0,240,160,0.3)' : '0 0 40px rgba(0,240,160,0.06)',
-        transition: 'box-shadow 0.25s',
-      }}>
-        <input
-          type="text"
-          placeholder="Try “compress an image” or “make a PDF”"
-          aria-label="Describe what you need help with"
-          value={query}
-          onChange={e => handleChange(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Escape') handleClear() }}
-          style={{
-            flex: 1, padding: '16px 20px',
-            background: 'transparent', border: 'none', outline: 'none',
-            color: '#e8edf5', fontFamily: "'Outfit', sans-serif", fontSize: '0.95rem',
-          }}
-        />
-        {query && (
-          <button
-            type="button"
-            onClick={handleClear}
-            title="Clear search"
-            style={{
-              background: 'none', border: 'none',
-              color: '#5a6580', cursor: 'pointer',
-              padding: '0 14px', fontSize: '1rem',
-            }}
-          >
-            ✕
+        <form className="hero-search" onSubmit={event => { event.preventDefault(); onSearch(query) }}>
+          <span className="search-icon" aria-hidden="true">⌕</span>
+          <input
+            type="search"
+            placeholder="What are you trying to get done?"
+            aria-label="Describe what you need help with"
+            value={query}
+            onChange={event => updateQuery(event.target.value)}
+            onKeyDown={event => { if (event.key === 'Escape') updateQuery('') }}
+          />
+          {query && <button className="search-clear" type="button" aria-label="Clear search" onClick={() => updateQuery('')}>×</button>}
+          <button className="search-submit" type="submit" disabled={searching || !query.trim()}>
+            {searching ? 'Searching…' : 'Find tools'} <span aria-hidden="true">↗</span>
           </button>
-        )}
-        <button
-          type="submit"
-          disabled={searching || !query.trim()}
-          style={{
-            padding: '16px 28px',
-            background: '#00f0a0', border: 'none',
-            cursor: 'pointer', fontWeight: 700,
-            fontFamily: "'Outfit', sans-serif", fontSize: '0.9rem', color: '#000',
-            letterSpacing: '0.3px', whiteSpace: 'nowrap',
-            transition: 'opacity 0.2s', opacity: !query.trim() ? 0.6 : 1,
-          }}
-          onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
-          onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-        >
-          {searching ? 'Finding…' : 'Find tools →'}
-        </button>
-      </form>
-      <p aria-live="polite" style={{ color: '#5a6580', marginTop: '12px', fontSize: '0.78rem' }}>
-        {searching ? 'Understanding your request…' : 'AI-powered search understands tasks, not just tool names.'}
-      </p>
+        </form>
+
+        <div className="search-examples">
+          <span>Try</span>
+          {examples.map(example => <button key={example} onClick={() => updateQuery(example)}>{example}</button>)}
+        </div>
+        <div className="search-status" aria-live="polite">
+          <span className={searching ? 'status-dot is-searching' : 'status-dot'} />
+          {searching ? 'Making sense of your request' : 'Search by task, not by tool name'}
+        </div>
+      </div>
+
+      <aside className="hero-aside" aria-label="How ToolDrop works">
+        <div className="aside-topline"><span>HOW TOOLDROP HELPS</span><span>PLAIN LANGUAGE → TOOLS</span></div>
+        <div className="aside-illustration" aria-hidden="true">
+          <div className="orbit orbit-one" /><div className="orbit orbit-two" />
+          <div className="orbit-center">✳</div>
+          <span className="orbit-label label-one">your task</span>
+          <span className="orbit-label label-two">a good fit</span>
+          <span className="orbit-label label-three">less searching</span>
+        </div>
+        <p className="aside-caption">From “I need to…”<br /><strong>to “this is the one.”</strong></p>
+        <div className="aside-footer"><span>{toolCount} tools to explore</span><span aria-hidden="true">↘</span></div>
+      </aside>
     </section>
   )
 }

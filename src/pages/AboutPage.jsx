@@ -10,8 +10,8 @@ export default function AboutPage() {
     <div style={{ position: 'relative', zIndex: 1, maxWidth: '760px', margin: '0 auto', padding: '60px 24px 80px' }}>
       <div style={{ marginBottom: '48px' }}>
         <div style={{
-          display: 'inline-block', background: 'rgba(49,86,217,0.08)',
-          border: '1px solid rgba(49,86,217,0.2)', color: '#3156d9',
+          display: 'inline-block', background: 'rgba(6,71,52,0.08)',
+          border: '1px solid rgba(6,71,52,0.2)', color: '#064734',
           fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.75rem',
           padding: '6px 14px', borderRadius: '999px', marginBottom: '20px',
         }}>
@@ -20,7 +20,7 @@ export default function AboutPage() {
         <h1 style={{
           fontFamily: "'Fraunces', Georgia, serif", fontWeight: 800,
           fontSize: 'clamp(2rem, 5vw, 3.5rem)', letterSpacing: '-1.5px',
-          color: '#202638', marginBottom: '24px',
+          color: '#123c30', marginBottom: '24px',
         }}>
           What is ToolDrop?
         </h1>
@@ -33,24 +33,24 @@ export default function AboutPage() {
         { emoji: '📬', title: 'Stay in the Loop',  text: "Subscribe to our weekly newsletter and be the first to know about new drops. No spam — just the best AI tools landing in your inbox every Monday." },
       ].map((section, i) => (
         <div key={i} style={{
-          background: '#fffdf9', border: '1px solid rgba(32,38,56,0.1)',
+          background: '#fbfff5', border: '1px solid rgba(18,60,48,0.12)',
           borderRadius: '16px', padding: '32px', marginBottom: '20px',
           animation: `fadeUp 0.5s ease ${i * 0.1}s both`,
         }}>
           <div style={{ fontSize: '2rem', marginBottom: '12px' }}>{section.emoji}</div>
           <h2 style={{
             fontFamily: "'Fraunces', Georgia, serif", fontWeight: 700, fontSize: '1.3rem',
-            color: '#202638', marginBottom: '12px', letterSpacing: '-0.3px',
+            color: '#123c30', marginBottom: '12px', letterSpacing: '-0.3px',
           }}>{section.title}</h2>
-          <p style={{ color: '#727687', lineHeight: 1.8, fontSize: '0.95rem' }}>{section.text}</p>
+          <p style={{ color: '#597267', lineHeight: 1.8, fontSize: '0.95rem' }}>{section.text}</p>
         </div>
       ))}
 
       {/* BUG #16 FIX: real dynamic stats instead of hardcoded "500+, 48, 12K+" */}
       <div style={{
         display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '40px',
-        background: 'linear-gradient(135deg, rgba(49,86,217,0.06), rgba(49,86,217,0.04))',
-        border: '1px solid rgba(49,86,217,0.15)', borderRadius: '16px', padding: '32px', textAlign: 'center',
+        background: 'linear-gradient(135deg, rgba(6,71,52,0.06), rgba(6,71,52,0.04))',
+        border: '1px solid rgba(6,71,52,0.15)', borderRadius: '16px', padding: '32px', textAlign: 'center',
       }}>
         {[
           { num: `${toolCount}+`,    label: 'Tools Listed'   },
@@ -58,8 +58,8 @@ export default function AboutPage() {
           { num: `${newToolCount}+`, label: 'New This Month' },
         ].map(s => (
           <div key={s.label}>
-            <div style={{ fontFamily: "'Fraunces', Georgia, serif", fontWeight: 800, fontSize: '2rem', color: '#3156d9' }}>{s.num}</div>
-            <div style={{ color: '#727687', fontSize: '0.82rem', marginTop: '4px' }}>{s.label}</div>
+            <div style={{ fontFamily: "'Fraunces', Georgia, serif", fontWeight: 800, fontSize: '2rem', color: '#064734' }}>{s.num}</div>
+            <div style={{ color: '#597267', fontSize: '0.82rem', marginTop: '4px' }}>{s.label}</div>
           </div>
         ))}
       </div>

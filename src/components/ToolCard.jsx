@@ -1,6 +1,8 @@
 export default function ToolCard({ tool, delay = 0 }) {
   const status = tool.badge || 'FREEMIUM'
   const tags = (tool.tags || []).filter(tag => tag !== tool.category).slice(0, 2)
+  const pricing = status === 'FREE' ? 'Free' : status === 'PAID' ? 'Paid' : 'Freemium'
+  const useCase = tool.bestFor || tool.category
 
   return (
     <article className="tool-card" style={{ animationDelay: `${Math.min(delay, .35)}s` }}>
@@ -11,6 +13,8 @@ export default function ToolCard({ tool, delay = 0 }) {
       {tool.isNew && <span className="tool-card-new">JUST ADDED</span>}
       <h3>{tool.name}</h3>
       <p className="tool-card-description">{tool.desc || tool.description || ''}</p>
+      <p className="tool-card-usecase"><strong>{tool.bestFor ? 'Best for' : 'Category'}</strong> {useCase}</p>
+      <div className="tool-card-plan"><span>{pricing}</span><span>Free-plan details not verified</span></div>
       <div className="tool-card-tags">
         {tags.map(tag => <span className="tool-card-tag" key={tag}>{tag}</span>)}
       </div>

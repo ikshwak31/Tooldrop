@@ -13,7 +13,7 @@ export default function Hero({ onSearch, searchValue, searching = false, toolCou
   }
 
   return (
-    <section className="hero page-width">
+    <section className={`hero page-width${searchValue ? ' has-search' : ''}`}>
       <div className="hero-copy">
         <div className="eyebrow">A considered directory of AI tools</div>
         <h1>Find the right tool<br />for <em>what you do.</em></h1>

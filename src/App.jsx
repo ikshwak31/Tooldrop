@@ -63,6 +63,8 @@ function HomePage() {
   const [category, setCategory] = useState(urlCategory)
   const [aiSearch, setAiSearch] = useState(null)
   const [searchingAI, setSearchingAI] = useState(false)
+  const [pricing, setPricing] = useState('All')
+  const [sort, setSort] = useState('relevance')
 
   useEffect(() => {
     const query = search.trim().toLowerCase()
@@ -120,11 +122,19 @@ function HomePage() {
         ? scores.has(tool.name)
         : localScores.get(tool.name) > 0)
       const matchCat = category === 'All' || tool.category === category
-      return matchSearch && matchCat
+      const plan = tool.badge === 'FREE' ? 'Free' : tool.badge === 'PAID' ? 'Paid' : 'Freemium'
+      const matchPricing = pricing === 'All' || plan === pricing
+      return matchSearch && matchCat && matchPricing
     })
 
-    return matches.sort((a, b) => (scores?.get(b.name) ?? localScores.get(b.name)) - (scores?.get(a.name) ?? localScores.get(a.name)))
-  }, [search, category, aiSearch])
+    return matches.sort((a, b) => {
+      if (sort === 'free') {
+        const usability = t => t.freePlanUsability === 'regular' ? 0 : t.freePlanUsability === 'occasional' ? 1 : 2
+        return usability(a) - usability(b) || ((scores?.get(b.name) ?? localScores.get(b.name)) - (scores?.get(a.name) ?? localScores.get(a.name)))
+      }
+      return (scores?.get(b.name) ?? localScores.get(b.name)) - (scores?.get(a.name) ?? localScores.get(a.name))
+    })
+  }, [search, category, aiSearch, pricing, sort])
 
   const showNew = !search && category === 'All'
   const featured = showNew ? filtered.filter(t => t.isNew === true).slice(-6).reverse() : []
@@ -135,7 +145,20 @@ function HomePage() {
     <>
       <Hero onSearch={setSearch} searchValue={search} searching={searchingAI} toolCount={tools.length} />
 
-      <div className="home-directory page-width">
+      <div className={`home-directory page-width${search ? ' is-searching' : ''}`}>
+        {search && <section className="search-results-block" aria-label="Search results">
+          <div className="search-results-meta" aria-live="polite">
+            <div><strong>{filtered.length} {filtered.length === 1 ? 'match' : 'matches'}</strong><span> for “{search}”</span></div>
+            <button onClick={() => setSearch('')}>Clear search</button>
+          </div>
+          <div className="discovery-controls">
+            <label>Pricing <select value={pricing} onChange={e => setPricing(e.target.value)}><option>All</option><option>Free</option><option>Freemium</option><option>Paid</option></select></label>
+            <label>Sort <select value={sort} onChange={e => setSort(e.target.value)}><option value="relevance">Relevance</option><option value="free">Free-plan usability</option></select></label>
+          </div>
+          {rest.length > 0 && <div className="tool-grid">{rest.map((tool, index) => <ToolCard key={tool.name} tool={tool} delay={index * .012} />)}</div>}
+          {filtered.length === 0 && <div className="home-empty"><div className="home-empty-mark" aria-hidden="true">⌕</div><h2>No matches just yet</h2><p>Try a broader phrase, remove a filter, or browse a category.</p><button onClick={() => { setPricing('All'); setSearch(''); handleCategorySelect('All') }}>Show the full directory</button></div>}
+        </section>}
+
         <section className="home-section" aria-labelledby="category-heading">
           <div className="section-heading">
             <div>
@@ -147,13 +170,7 @@ function HomePage() {
           <CategoryFilter selected={category} onSelect={handleCategorySelect} />
         </section>
 
-        {search && (
-          <div className="search-results-meta" aria-live="polite">
-            <strong>{filtered.length} {filtered.length === 1 ? 'match' : 'matches'}</strong>
-            <span>for “{search}”</span>
-            <button onClick={() => setSearch('')}>Clear search</button>
-          </div>
-        )}
+        {!search && <div className="discovery-controls"><label>Pricing <select value={pricing} onChange={e => setPricing(e.target.value)}><option>All</option><option>Free</option><option>Freemium</option><option>Paid</option></select></label><label>Sort <select value={sort} onChange={e => setSort(e.target.value)}><option value="relevance">Relevance</option><option value="free">Free-plan usability</option></select></label></div>}
 
         {featured.length > 0 && (
           <section className="home-section" aria-labelledby="new-tools-heading">
@@ -167,7 +184,7 @@ function HomePage() {
           </section>
         )}
 
-        {rest.length > 0 && (
+        {!search && rest.length > 0 && (
           <section className="home-section" aria-labelledby="directory-heading">
             <div className="section-heading">
               <div><h2 id="directory-heading">The directory</h2><p>{rest.length} tools, organized around the work they help with.</p></div>
@@ -179,7 +196,7 @@ function HomePage() {
           </section>
         )}
 
-        {filtered.length === 0 && (
+        {!search && filtered.length === 0 && (
           <div className="home-empty">
             <div className="home-empty-mark" aria-hidden="true">⌕</div>
             <h2>No matches just yet</h2>

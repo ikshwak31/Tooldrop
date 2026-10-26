@@ -1,4 +1,0 @@
-/sitemap.xml
-  Content-Type: text/xml; charset=UTF-8
-  Content-Encoding: identity
-  Cache-Control: no-cache

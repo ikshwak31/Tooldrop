@@ -1,11 +1,5 @@
-# ToolDrop — robots.txt
-# Deployed at: https://thetooldrop.pages.dev
-
+# ToolDrop robots.txt
 User-agent: *
 Allow: /
 
-# Keep submit form out of search index (no value for searchers)
-Disallow: /submit
-
-# Sitemap location — must match exact deployed domain
 Sitemap: https://thetooldrop.pages.dev/sitemap.xml

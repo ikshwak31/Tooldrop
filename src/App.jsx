@@ -220,6 +220,54 @@ function AppLayout() {
   // Derives the active nav key — strips leading slash
   const currentPage = location.pathname.replace(/^\//, '') || 'home'
 
+  useEffect(() => {
+    const pageMeta = {
+      home: ['ToolDrop — AI Tools for Every Task', 'Find AI tools for writing, coding, design, research, video, and more. Browse a curated directory of tools by category and use case.'],
+      categories: ['AI Tool Categories | ToolDrop', 'Browse AI tools by category, including coding, writing, image generation, video, audio, research, and productivity.'],
+      'new-drops': ['New AI Tools | ToolDrop', 'Explore recently added AI tools in the ToolDrop directory. Find new apps for creative work, coding, productivity, and more.'],
+      blog: ['AI Guides and Comparisons | ToolDrop', 'Read ToolDrop guides and comparisons to help choose AI tools for your work.'],
+      about: ['About ToolDrop | Curated AI Tool Directory', 'Learn how ToolDrop curates AI tools and helps people find useful software for their work.'],
+      contact: ['Contact ToolDrop', 'Contact ToolDrop with questions, suggestions, or feedback about the AI tools directory.'],
+      privacy: ['Privacy Policy | ToolDrop', 'Read the ToolDrop privacy policy and learn how information is handled on this site.'],
+      submit: ['Suggest an AI Tool | ToolDrop', 'Suggest an AI tool for consideration in the ToolDrop directory.'],
+    }
+    const [title, description] = pageMeta[currentPage] || pageMeta.home
+    const knownPage = Object.prototype.hasOwnProperty.call(pageMeta, currentPage)
+    const canonicalPath = knownPage ? (location.pathname === '/' ? '/' : location.pathname.replace(/\/$/, '')) : '/'
+    const canonical = `https://thetooldrop.pages.dev${canonicalPath}`
+    document.title = title
+    const setMeta = (selector, attribute, value) => {
+      let element = document.head.querySelector(selector)
+      if (!element) {
+        element = document.createElement('meta')
+        const [key, val] = selector.match(/\[(name|property)="([^"]+)"\]/).slice(1)
+        element.setAttribute(key, val)
+        document.head.appendChild(element)
+      }
+      element.setAttribute(attribute, value)
+    }
+    setMeta('meta[name="description"]', 'content', description)
+    setMeta('meta[property="og:title"]', 'content', title)
+    setMeta('meta[property="og:description"]', 'content', description)
+    setMeta('meta[property="og:url"]', 'content', canonical)
+    setMeta('meta[name="twitter:title"]', 'content', title)
+    setMeta('meta[name="twitter:description"]', 'content', description)
+    let canonicalLink = document.head.querySelector('link[rel="canonical"]')
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link')
+      canonicalLink.rel = 'canonical'
+      document.head.appendChild(canonicalLink)
+    }
+    canonicalLink.href = canonical
+    let robots = document.head.querySelector('meta[name="robots"]')
+    if (!robots) {
+      robots = document.createElement('meta')
+      robots.name = 'robots'
+      document.head.appendChild(robots)
+    }
+    robots.content = currentPage === 'submit' ? 'noindex,follow' : 'index,follow'
+  }, [currentPage, location.pathname])
+
   return (
     <div className="site-shell">
       <Navbar
